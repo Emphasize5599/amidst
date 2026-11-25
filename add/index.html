@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Add me on Amidst</title><meta name="description" content="You're invited to share locations privately on Amidst.">
+<title>Add me on Amidst</title><meta name="referrer" content="no-referrer"><meta name="description" content="You're invited to share locations privately on Amidst.">
 <link rel="stylesheet" href="../style.css"></head>
 <body><main>
 <img class="icon" src="../icon.png" alt="">
@@ -12,12 +12,15 @@
 <p class="small" id="hint">Already have Amidst? Tap “Open in Amidst” to send a friend request.</p>
 </main>
 <script>
-// The link carries only a public username (?u=name). Usernames are 5–32 lowercase letters or digits;
-// anything else is ignored so the page can't be used to inject text.
-const u = (new URLSearchParams(location.search).get('u') || '').trim().replace(/^@/, '').toLowerCase();
+const query = new URLSearchParams(location.search);
+const fragment = new URLSearchParams(location.hash.slice(1));
+const u = (query.get('u') || '').trim().replace(/^@/, '').toLowerCase();
+const token = fragment.get('t') ?? query.get('t') ?? '';
+const oneTime = /^[A-Za-z0-9_-]{22}$/.test(token);
 if (/^[a-z0-9]{5,32}$/.test(u)) {
   document.getElementById('title').textContent = '@' + u + ' invited you to Amidst';
-  document.getElementById('open').href = 'amidst://add/' + u;
+  document.getElementById('open').href = 'amidst://add/' + u + (oneTime ? '?t=' + token : '');
+  if (oneTime) document.getElementById('hint').textContent = 'Open this one-time invite in a current version of Amidst.';
   document.title = 'Add @' + u + ' on Amidst';
 } else {
   document.getElementById('hint').textContent = 'Install Amidst, then add your friend by their username.';
